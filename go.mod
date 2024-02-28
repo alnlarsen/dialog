@@ -1,4 +1,4 @@
-module github.com/sqweek/dialog
+module github.com/alnlarsen/dialog
 
 go 1.22.0
 
