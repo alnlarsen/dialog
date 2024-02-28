@@ -12,18 +12,23 @@ package dialog
 // 	return gtk_file_chooser_dialog_new(title, parent, action, "Cancel", GTK_RESPONSE_CANCEL, acceptText, GTK_RESPONSE_ACCEPT, NULL);
 // }
 import "C"
-import "unsafe"
+import (
+	"sync"
+	"unsafe"
+)
 
-var initSuccess bool
-
-func init() {
-	C.XInitThreads()
-	initSuccess = (C.gtk_init_check(nil, nil) == C.TRUE)
-}
+var didInit bool
+var initMut = &sync.Mutex{}
 
 func checkStatus() {
-	if !initSuccess {
-		panic("gtk initialisation failed; presumably no X server is available")
+	initMut.Lock()
+	defer initMut.Unlock()
+	if !didInit {
+		didInit = true
+		C.XInitThreads()
+		if !(C.gtk_init_check(nil, nil) == C.TRUE) {
+			panic("gtk initialisation failed; presumably no X server is available")
+		}
 	}
 }
 
